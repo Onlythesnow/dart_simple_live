@@ -30,6 +30,11 @@ jobs:
         run: flutter pub get
         working-directory: ./simple_live_app
 
+      - name: Patch Android to use debug signing for release
+        run: |
+          sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g' android/app/build.gradle
+        working-directory: ./simple_live_app
+
       - name: Build APK (Release)
         run: flutter build apk --release --no-shrink
         working-directory: ./simple_live_app
