@@ -1,19 +1,24 @@
 name: Build Flutter APK
 
 on:
-  workflow_dispatch: # 允许手动触发打包
+  workflow_dispatch:
   push:
     branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./flutter
-        
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true   # 防止子模块问题（虽然这里不是，但加上更安全）
+
+      - name: Debug - List root directory
+        run: ls -la
+
+      - name: Debug - List flutter directory
+        run: ls -la ./flutter   👈 确保 flutter/ 存在！
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -22,12 +27,14 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+        working-directory: ./flutter   👈 这里指定，而不是全局 defaults
 
       - name: Build APK (Release)
         run: flutter build apk --release
+        working-directory: ./flutter
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: flutter/build/app/outputs/flutter-apk/app-release.apk
