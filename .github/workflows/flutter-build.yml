@@ -31,7 +31,7 @@ jobs:
         working-directory: ./simple_live_app
 
       - name: Build APK (Release)
-        run: flutter build apk --release
+        run: flutter build apk --release --no-shrink
         working-directory: ./simple_live_app
 
       - name: Upload APK Artifact
