@@ -14,17 +14,17 @@ jobs:
         with:
           submodules: true
 
-      - name: Debug - List root directory
+      - name: Debug - List root
         run: ls -la
 
-      - name: Debug - List simple_live_app directory
+      - name: Debug - List simple_live_app
         run: ls -la ./simple_live_app
 
-      - name: Set up Flutter
+      - name: Set up Flutter (3.22.0)
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.22.0
+          flutter-version: '3.22.0'
 
       - name: Install dependencies
         run: flutter pub get
