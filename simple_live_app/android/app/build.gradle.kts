@@ -40,7 +40,7 @@ android {
     }
 
     signingConfigs {
-        create("debug") {
+        create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String
             keyPassword = keystoreProperties["keyPassword"] as String
             storeFile = keystoreProperties["storeFile"]?.let { file(it) }
