@@ -33,14 +33,14 @@ jobs:
           
       
       - name: Build APK (Release)
-        run: flutter build apk --release --no-shrink
+        run: flutter build apk --debug
         working-directory: ./simple_live_app
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: simple_live_app/build/app/outputs/flutter-apk/app-release.apk
+          path: simple_live_app/build/app/outputs/flutter-apk/app-debug.apk
           
   # 打包Windows
   # build-windows:
