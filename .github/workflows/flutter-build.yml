@@ -31,14 +31,6 @@ jobs:
         run: flutter pub get
         working-directory: ./simple_live_app
 
-      - name: Patch Android to use debug signing for release
-        run: |
-          # 1. 注释掉整个 signingConfigs 块中的 release 定义（避免读取不存在的 key.properties）
-          sed -i '/signingConfigs\s*{/,/}/ { /create("release")/,/^    }$/ s/^/\/\// }' android/app/build.gradle.kts
-          # 2. 将 buildTypes.release 中的签名配置改为 debug
-          sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debug")/' android/app/build.gradle.kts
-        working-directory: ./simple_live_app
-
       - name: Build APK (Release)
         run: flutter build apk --release --no-shrink
         working-directory: ./simple_live_app
