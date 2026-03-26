@@ -31,22 +31,37 @@ jobs:
         run: flutter pub get
         working-directory: ./simple_live_app
           
-      # 【关键修复】设置空的环境变量，防止 build.gradle.kts 解析时报 "null cannot be cast" 错误
-      - name: Fix Null Pointer in Gradle
+      # 【核心修复步骤】
+      # 动态修改 build.gradle.kts，移除会导致崩溃的 "as String" 强制转换
+      # 原理：将 '...["key"] as String' 替换为 '...["key"] ?: ""'
+      # 这样如果取不到值，就变成空字符串，而不是抛异常
+      - name: Patch build.gradle.kts for Debug Build
+        working-directory: ./simple_live_app/android/app
         run: |
-          echo "KEYSTORE_PATH=" >> $GITHUB_ENV
-          echo "KEYSTORE_PASSWORD=" >> $GITHUB_ENV
-          echo "KEY_ALIAS=" >> $GITHUB_ENV
-          echo "KEY_PASSWORD=" >> $GITHUB_ENV
-        
-      - name: Build APK (Release)
+          echo "🔧 Patching build.gradle.kts to prevent null cast errors..."
+          
+          # 备份原文件以便调试
+          cp build.gradle.kts build.gradle.kts.bak
+          
+          # 执行替换逻辑：
+          # 匹配模式：["keyName"] as String
+          # 替换为：["keyName"] ?: ""
+          # 解释：?: "" 是 Kotlin 的埃尔维斯运算符，如果左边是 null，则返回右边的空字符串
+          sed -i 's/\(keystoreProperties\[[^]]*\]\) as String/\1 ?: ""/g' build.gradle.kts
+          
+          echo "✅ Patch applied. Showing diff:"
+          diff build.gradle.kts.bak build.gradle.kts || true
+
+      - name: Build APK (Debug)
+        # 注意：这里依然可以跑 debug，因为修复后的代码即使拿到空值也不会崩
+        # Android Gradle 插件在 Debug 模式下会自动忽略空的 signingConfig 或使用默认 debug 签名
         run: flutter build apk --debug
         working-directory: ./simple_live_app
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: app-debug-apk
           path: simple_live_app/build/app/outputs/flutter-apk/app-debug.apk
           
   # 打包Windows
