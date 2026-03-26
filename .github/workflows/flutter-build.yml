@@ -6,44 +6,45 @@ on:
     branches: [ main ]
 
 jobs:
-  # build:
-  #   runs-on: ubuntu-latest
+# 打包Android
+  build:
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         submodules: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
 
-  #     - name: Debug - List root
-  #       run: ls -la
+      - name: Debug - List root
+        run: ls -la
 
-  #     - name: Debug - List simple_live_app
-  #       run: ls -la ./simple_live_app
+      - name: Debug - List simple_live_app
+        run: ls -la ./simple_live_app
 
-  #     - name: Set up Flutter (3.22.0)
-  #       uses: subosito/flutter-action@v2
-  #       with:
-  #         channel: 'stable'
-  #         flutter-version: '3.22.0'
+      - name: Set up Flutter (3.22.0)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.22.0'
 
-  #     - name: Install dependencies
-  #       run: flutter pub get
-  #       working-directory: ./simple_live_app
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ./simple_live_app
 
-  #     - name: Patch Android to use debug signing for release
-  #       run: |
-  #         sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g' android/app/build.gradle
-  #       working-directory: ./simple_live_app
+      - name: Patch Android to use debug signing for release
+        run: |
+          sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g' android/app/build.gradle
+        working-directory: ./simple_live_app
 
-  #     - name: Build APK (Release)
-  #       run: flutter build apk --release --no-shrink
-  #       working-directory: ./simple_live_app
+      - name: Build APK (Release)
+        run: flutter build apk --release --no-shrink
+        working-directory: ./simple_live_app
 
-  #     - name: Upload APK Artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: app-release
-  #         path: simple_live_app/build/app/outputs/flutter-apk/app-release.apk
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: simple_live_app/build/app/outputs/flutter-apk/app-release.apk
           
   # 打包Windows
   build-windows:
