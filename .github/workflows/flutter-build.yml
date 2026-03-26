@@ -30,14 +30,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
         working-directory: ./simple_live_app
-        
-       # APK签名设置
-      - name: Download Android keystore
-        id: android_keystore
-        uses: timheuer/base64-to-file@v1.2
-        with:
-          fileName: keystore.jks
-          encodedString: ${{ secrets.KEYSTORE_BASE64 }}
+          
       - name: Create key.properties
         run: |
           echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > simple_live_app/android/key.properties
