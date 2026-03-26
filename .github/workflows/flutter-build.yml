@@ -31,26 +31,32 @@ jobs:
         run: flutter pub get
         working-directory: ./simple_live_app
           
-      # 【核心修复步骤】
-      # 动态修改 build.gradle.kts，移除会导致崩溃的 "as String" 强制转换
-      # 原理：将 '...["key"] as String' 替换为 '...["key"] ?: ""'
-      # 这样如果取不到值，就变成空字符串，而不是抛异常
-      - name: Patch build.gradle.kts for Debug Build
+      # 【核心修复步骤 - 最终版】
+      # 1. 移除 "as String" (防止 null 崩溃)
+      # 2. 添加 "as? String" (解决 Any 到 String? 的类型不匹配)
+      # 3. 添加 "?: """ (提供默认空值)
+      - name: Patch build.gradle.kts for Type Safety
         working-directory: ./simple_live_app/android/app
         run: |
-          echo "🔧 Patching build.gradle.kts to prevent null cast errors..."
-          
-          # 备份原文件以便调试
+          echo "🔧 Patching build.gradle.kts..."
           cp build.gradle.kts build.gradle.kts.bak
           
-          # 执行替换逻辑：
-          # 匹配模式：["keyName"] as String
-          # 替换为：["keyName"] ?: ""
-          # 解释：?: "" 是 Kotlin 的埃尔维斯运算符，如果左边是 null，则返回右边的空字符串
-          sed -i 's/\(keystoreProperties\[[^]]*\]\) as String/\1 ?: ""/g' build.gradle.kts
+          # 原始代码模式: keystoreProperties["..."] as String
+          # 目标代码模式: (keystoreProperties["..."] as? String) ?: ""
+          
+          # 解释正则:
+          # \(keystoreProperties\[[^]]*\])  -> 捕获组1: keystoreProperties["keyName"]
+          #  as String                      -> 匹配后面的 " as String"
+          # 替换为:
+          # (\1 as? String) ?: ""           -> (捕获组1 as? String) ?: ""
+          
+          sed -i 's/\(keystoreProperties\[[^]]*\]\) as String/(\1 as? String) ?: ""/g' build.gradle.kts
           
           echo "✅ Patch applied. Showing diff:"
           diff build.gradle.kts.bak build.gradle.kts || true
+          
+          # 额外检查：如果还有单独的访问没有 as String 但可能返回 Any 的情况，也可以统一处理
+          # 但通常上面的替换足以解决你提供的代码片段中的问题
 
       - name: Build APK (Debug)
         # 注意：这里依然可以跑 debug，因为修复后的代码即使拿到空值也不会崩
