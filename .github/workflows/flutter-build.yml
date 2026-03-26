@@ -33,8 +33,10 @@ jobs:
 
       - name: Patch Android to use debug signing for release
         run: |
-          # 匹配两种常见的 Kotlin DSL 签名配置写法并替换为 debug 签名
-          sed -i 's/signingConfig = signingConfigs\.\(getByName("release")\|release\)/signingConfig = signingConfigs.getByName("debug")/' android/app/build.gradle.kts
+          # 1. 注释掉整个 signingConfigs 块中的 release 定义（避免读取不存在的 key.properties）
+          sed -i '/signingConfigs\s*{/,/}/ { /create("release")/,/^    }$/ s/^/\/\// }' android/app/build.gradle.kts
+          # 2. 将 buildTypes.release 中的签名配置改为 debug
+          sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debug")/' android/app/build.gradle.kts
         working-directory: ./simple_live_app
 
       - name: Build APK (Release)
