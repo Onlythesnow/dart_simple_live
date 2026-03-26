@@ -31,10 +31,11 @@ jobs:
         run: flutter pub get
         working-directory: ./simple_live_app
 
-      # - name: Patch Android to use debug signing for release
-      #   run: |
-      #     sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g' android/app/build.gradle
-      #   working-directory: ./simple_live_app
+      - name: Patch Android to use debug signing for release
+        run: |
+          # 匹配两种常见的 Kotlin DSL 签名配置写法并替换为 debug 签名
+          sed -i 's/signingConfig = signingConfigs\.\(getByName("release")\|release\)/signingConfig = signingConfigs.debug/' android/app/build.gradle.kts
+        working-directory: ./simple_live_app
 
       - name: Build APK (Release)
         run: flutter build apk --release --no-shrink
