@@ -21,11 +21,9 @@ jobs:
       - name: Debug - List simple_live_app
         run: ls -la ./simple_live_app
 
-      - name: Set up Flutter (3.22.0)
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-          # flutter-version: '3.22.0'
           flutter-version: "3.38.x"
           cache: true
 
